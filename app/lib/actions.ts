@@ -16,6 +16,10 @@ const CreateInvoice  = FormSchema.omit({
     id: true, date: true
 });
 
+// Use Zod to update the expected types
+const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+
+
 export async function createInvoice(formData: FormData) {
 const { customerId, amount, status } = CreateInvoice.parse(Object.fromEntries(formData.entries()));
   // Test it out:
@@ -27,6 +31,17 @@ const { customerId, amount, status } = CreateInvoice.parse(Object.fromEntries(fo
     INSERT INTO invoices (customer_id, amount, status, date)
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})`
 
+  revalidatePath('/dashboard/invoices');
+  redirect('/dashboard/invoices');
+}
+
+export async function updateInvoice(id: string, formData: FormData) {
+  const { customerId, amount, status } = UpdateInvoice.parse(Object.fromEntries(formData.entries()));
+  
+  const amountInCents = amount * 100;
+  
+
+  await sql`UPDATE invoices SET status = 'paid' WHERE id = ${id}`
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
